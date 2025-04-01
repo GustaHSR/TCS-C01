@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Alunos</title>
+</head>
+<body>
+    <h2>Cadastro de Alunos</h2>
+    <form id="studentForm">
+        <label>Nome: <input type="text" id="name" required></label><br>
+        <label>Idade: <input type="number" id="age" required></label><br>
+        <label>Curso: 
+            <select id="course">
+                <option value="JavaScript">JavaScript</option>
+                <option value="Python">Python</option>
+                <option value="Java">Java</option>
+            </select>
+        </label><br>
+        <label>Nota Final: <input type="number" id="grade" required></label><br>
+        <button type="submit">Cadastrar</button>
+    </form>
+    
+    <h2>Lista de Alunos</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Idade</th>
+                <th>Curso</th>
+                <th>Nota Final</th>
+                <th>Aprovado</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="studentTable"></tbody>
+    </table>
+    
+    <h2>Relatórios</h2>
+    <button onclick="listApprovedStudents()">Listar Aprovados</button>
+    <button onclick="calculateAverageGrade()">Média das Notas</button>
+    <button onclick="calculateAverageAge()">Média das Idades</button>
+    <button onclick="listAlphabeticalNames()">Ordenar Nomes</button>
+    <button onclick="countStudentsByCourse()">Alunos por Curso</button>
+    <div id="report"></div>
+    
+    <script>
+        class Aluno {
+            constructor(nome, idade, curso, notaFinal) {
+                this.nome = nome;
+                this.idade = idade;
+                this.curso = curso;
+                this.notaFinal = notaFinal;
+            }
+
+            isAprovado = () => this.notaFinal >= 7;
+        }
+
+        let students = [];
+        let editIndex = -1;
+
+        document.getElementById("studentForm").addEventListener("submit", (event) => {
+            event.preventDefault();
+            let name = document.getElementById("name").value;
+            let age = document.getElementById("age").value;
+            let course = document.getElementById("course").value;
+            let grade = parseFloat(document.getElementById("grade").value);
+
+            let student = new Aluno(name, age, course, grade);
+            
+            if (editIndex === -1) {
+                students.push(student);
+                alert("Aluno cadastrado com sucesso!");
+            } else {
+                students[editIndex] = student;
+                editIndex = -1;
+                alert("Aluno editado com sucesso!");
+            }
+            
+            document.getElementById("studentForm").reset();
+            renderTable();
+        });
+
+        const renderTable = () => {
+            let tableBody = document.getElementById("studentTable");
+            tableBody.innerHTML = "";
+            students.forEach((student, index) => {
+                let row = `<tr>
+                    <td>${student.nome}</td>
+                    <td>${student.idade}</td>
+                    <td>${student.curso}</td>
+                    <td>${student.notaFinal}</td>
+                    <td>${student.isAprovado() ? "Sim" : "Não"}</td>
+                    <td>
+                        <button onclick="editStudent(${index})">Editar</button>
+                        <button onclick="deleteStudent(${index})">Excluir</button>
+                    </td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        };
+
+        const editStudent = (index) => {
+            let student = students[index];
+            document.getElementById("name").value = student.nome;
+            document.getElementById("age").value = student.idade;
+            document.getElementById("course").value = student.curso;
+            document.getElementById("grade").value = student.notaFinal;
+            editIndex = index;
+        };
+
+        const deleteStudent = (index) => {
+            students.splice(index, 1);
+            alert("Aluno excluído com sucesso!");
+            renderTable();
+        };
+
+        const listApprovedStudents = () => {
+            const approved = students.filter(student => student.isAprovado()).map(student => student.nome);
+            document.getElementById("report").innerHTML = "Aprovados: " + approved.join(", ");
+        };
+
+        const calculateAverageGrade = () => {
+            const average = students.reduce((sum, student) => sum + student.notaFinal, 0) / students.length || 0;
+            document.getElementById("report").innerHTML = "Média das Notas: " + average.toFixed(2);
+        };
+
+        const calculateAverageAge = () => {
+            const average = students.reduce((sum, student) => sum + parseInt(student.idade), 0) / students.length || 0;
+            document.getElementById("report").innerHTML = "Média das Idades: " + average.toFixed(2);
+        };
+
+        const listAlphabeticalNames = () => {
+            const names = students.map(student => student.nome).sort();
+            document.getElementById("report").innerHTML = "Nomes Ordenados: " + names.join(", ");
+        };
+
+        const countStudentsByCourse = () => {
+            const count = students.reduce((acc, student) => {
+                acc[student.curso] = (acc[student.curso] || 0) + 1;
+                return acc;
+            }, {});
+            let result = "Alunos por Curso: " + Object.entries(count).map(([course, qty]) => `${course}: ${qty}`).join(", ");
+            document.getElementById("report").innerHTML = result;
+        };
+    </script>
+</body>
+</html>

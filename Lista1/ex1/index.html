@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Alunos</title>
+</head>
+<body>
+    <h2>Cadastro de Alunos</h2>
+    <form id="studentForm">
+        <label>Nome: <input type="text" id="name" required></label><br>
+        <label>Idade: <input type="number" id="age" required></label><br>
+        <label>Curso: 
+            <select id="course">
+                <option value="JavaScript">JavaScript</option>
+                <option value="Python">Python</option>
+                <option value="Java">Java</option>
+            </select>
+        </label><br>
+        <label>Nota Final: <input type="number" id="grade" required></label><br>
+        <button type="submit">Cadastrar</button>
+    </form>
+    
+    <h2>Lista de Alunos</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Idade</th>
+                <th>Curso</th>
+                <th>Nota Final</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="studentTable"></tbody>
+    </table>
+    
+    <script>
+        let students = [];
+        let editIndex = -1;
+
+        document.getElementById("studentForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            let name = document.getElementById("name").value;
+            let age = document.getElementById("age").value;
+            let course = document.getElementById("course").value;
+            let grade = document.getElementById("grade").value;
+
+            let student = { name, age, course, grade };
+            
+            if (editIndex === -1) {
+                students.push(student);
+            } else {
+                students[editIndex] = student;
+                editIndex = -1;
+            }
+            
+            document.getElementById("studentForm").reset();
+            renderTable();
+        });
+
+        function renderTable() {
+            let tableBody = document.getElementById("studentTable");
+            tableBody.innerHTML = "";
+            students.forEach((student, index) => {
+                let row = `<tr>
+                    <td>${student.name}</td>
+                    <td>${student.age}</td>
+                    <td>${student.course}</td>
+                    <td>${student.grade}</td>
+                    <td>
+                        <button onclick="editStudent(${index})">Editar</button>
+                        <button onclick="deleteStudent(${index})">Excluir</button>
+                    </td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        function editStudent(index) {
+            let student = students[index];
+            document.getElementById("name").value = student.name;
+            document.getElementById("age").value = student.age;
+            document.getElementById("course").value = student.course;
+            document.getElementById("grade").value = student.grade;
+            editIndex = index;
+        }
+
+        function deleteStudent(index) {
+            students.splice(index, 1);
+            renderTable();
+        }
+    </script>
+</body>
+</html>

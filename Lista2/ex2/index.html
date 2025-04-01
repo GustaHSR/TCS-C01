@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Funcionários</title>
+</head>
+<body>
+    <h2>Cadastro de Funcionários</h2>
+    <form id="employeeForm">
+        <label>Nome: <input type="text" id="name" required></label><br>
+        <label>Idade: <input type="number" id="age" required></label><br>
+        <label>Cargo: <input type="text" id="position" required></label><br>
+        <label>Salário: <input type="number" id="salary" required></label><br>
+        <button type="submit">Cadastrar</button>
+    </form>
+    
+    <h2>Lista de Funcionários</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Idade</th>
+                <th>Cargo</th>
+                <th>Salário</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="employeeTable"></tbody>
+    </table>
+    
+    <script>
+        class Funcionario {
+            constructor(nome, idade, cargo, salario) {
+                this.nome = nome;
+                this.idade = idade;
+                this.cargo = cargo;
+                this.salario = salario;
+            }
+
+            toString() {
+                return `${this.nome}, ${this.idade} anos, ${this.cargo}, Salário: R$${this.salario.toFixed(2)}`;
+            }
+        }
+
+        let employees = [];
+        let editIndex = -1;
+
+        document.getElementById("employeeForm").addEventListener("submit", (event) => {
+            event.preventDefault();
+            let name = document.getElementById("name").value;
+            let age = parseInt(document.getElementById("age").value);
+            let position = document.getElementById("position").value;
+            let salary = parseFloat(document.getElementById("salary").value);
+
+            let employee = new Funcionario(name, age, position, salary);
+            
+            if (editIndex === -1) {
+                employees.push(employee);
+                alert("Funcionário cadastrado com sucesso!");
+            } else {
+                employees[editIndex] = employee;
+                editIndex = -1;
+                alert("Funcionário editado com sucesso!");
+            }
+            
+            document.getElementById("employeeForm").reset();
+            renderTable();
+        });
+
+        const renderTable = () => {
+            let tableBody = document.getElementById("employeeTable");
+            tableBody.innerHTML = "";
+            employees.forEach((employee, index) => {
+                let row = `<tr>
+                    <td>${employee.nome}</td>
+                    <td>${employee.idade}</td>
+                    <td>${employee.cargo}</td>
+                    <td>R$${employee.salario.toFixed(2)}</td>
+                    <td>
+                        <button onclick="editEmployee(${index})">Editar</button>
+                        <button onclick="deleteEmployee(${index})">Excluir</button>
+                    </td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        };
+
+        const editEmployee = (index) => {
+            let employee = employees[index];
+            document.getElementById("name").value = employee.nome;
+            document.getElementById("age").value = employee.idade;
+            document.getElementById("position").value = employee.cargo;
+            document.getElementById("salary").value = employee.salario;
+            editIndex = index;
+        };
+
+        const deleteEmployee = (index) => {
+            employees.splice(index, 1);
+            alert("Funcionário excluído com sucesso!");
+            renderTable();
+        };
+    </script>
+</body>
+</html>
